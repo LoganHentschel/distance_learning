@@ -4,6 +4,9 @@ pygame.init()
 #setting up gaming window; parenthases variables are height/width
 win = pygame.display.set_mode((500, 500))
 pygame.display.set_caption("First Game")
+#
+screenwidth = 500
+screenheight = 500
 
 # # #
 #main variables
@@ -12,6 +15,9 @@ y = 50
 width = 40
 height = 60
 vel = 5 #velocity; how far the character moves in any direction
+
+isJump = False
+JumpCount = 10
 
 # # #
 #main loops
@@ -26,14 +32,29 @@ while run:
 #list of...
     keys = pygame.key.get_pressed()
     
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] and x > vel:
         x -= vel
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_RIGHT] and x < (screenwidth-width): #'-vel' ?
         x += vel
-    if keys[pygame.K_UP]:
-        y -= vel
-    if keys[pygame.K_DOWN]:
-        y += vel
+    if not  (isJump) :
+        if keys[pygame.K_UP] and y > vel:
+            y -= vel
+        if keys[pygame.K_DOWN] and y < (screenheight-height): # -vel?
+            y += vel
+        if keys[pygame.K_SPACE]:
+            isJump = True
+    else:
+        if JumpCount >= -10:
+            neg = 1
+            if JumpCount < 0:
+                neg = -1
+            y -= (JumpCount**2)/2*neg
+            JumpCount -= 1
+        else:
+            isJump = False
+            JumpCount = 10
+
+    # # #
     win.fill((0,0,0))
 
 # # #
