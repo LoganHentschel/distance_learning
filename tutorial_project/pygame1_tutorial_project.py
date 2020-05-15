@@ -56,7 +56,7 @@ class player(object):
             else:
                 win.blit(walkLeft[0], (self.x,self.y))
         self.hitbox = (self.x + 17, self.y+11, 29, 52)
-        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
 # #
 class enemy(object):
     walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
@@ -74,21 +74,26 @@ class enemy(object):
         self.path = (self.x, self.end)
         #
         self.hitbox = (self.x + 17, self.y+2, 31, 57)
+        self.health = 10
+        self.visable = True
     #
     def draw(self, win):
         self.move()
-        if self.walk_count + 1 >= 33:
-            self.walk_count = 0
-        #
-        if self.vel > 0: #right
-            win.blit(self.walkRight[self.walk_count//3], (self.x,self.y))
-            self.walk_count += 1
-        else:
-            win.blit(self.walkLeft[self.walk_count//3], (self.x,self.y))
-            self.walk_count += 1
-        #
-        self.hitbox = (self.x + 17, self.y+2, 31, 57)
-        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        if self.visable:
+            if self.walk_count + 1 >= 33:
+                self.walk_count = 0
+            #
+            if self.vel > 0: #right
+                win.blit(self.walkRight[self.walk_count//3], (self.x,self.y))
+                self.walk_count += 1
+            else:
+                win.blit(self.walkLeft[self.walk_count//3], (self.x,self.y))
+                self.walk_count += 1
+            #
+            pygame.draw.rect(win, (255,0,0), (self.hitbox[0], self.hitbox[1] - 20,50,10)) #red health bar
+            pygame.draw.rect(win, (0,128,0), (self.hitbox[0], self.hitbox[1] - 20,50-(5 * (10-self.health)),10)) #green health bar
+            self.hitbox = (self.x + 17, self.y+2, 31, 57)
+            #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
     #
     def move(self):
         if self.vel > 0: #moving right
@@ -105,8 +110,12 @@ class enemy(object):
                 self.walk_count = 0
     #
     def hit(self):
+        if self.health > 0:
+            self.health -= 1
+        else:
+            self.visable = False
         print('hit')
-        
+
 
 # #
 class projectile(object):
@@ -126,6 +135,10 @@ class projectile(object):
 #functions!
 def  redrawGameWindow():
     win.blit(bg, (0,0))
+    #
+    text = font.render('Score: ' + str(score), 1, (0,0,0))
+    win.blit(text, (370, 10))
+    #
     character.draw(win)
     goblin.draw(win)
 
@@ -137,6 +150,9 @@ def  redrawGameWindow():
 
 # # # # #
 #main loop
+font = pygame.font.SysFont('comicsans', 30, True) #last two variables are ture/false for bold & italics
+
+#
 character = player(200,410, 64, 64)
 goblin = enemy(100, 410, 64, 64, 450)
 #
@@ -164,6 +180,7 @@ while run:
         if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
                 goblin.hit()
+                score += 1
                 bullets.pop(bullets.index(bullet))
 
         #
