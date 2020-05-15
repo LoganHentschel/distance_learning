@@ -13,6 +13,8 @@ walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.ima
 bg = pygame.image.load('bg.jpg')
 char = pygame.image.load('standing.png')
 
+
+
 clock = pygame.time.Clock()
 
 # # # # #
@@ -34,7 +36,7 @@ class player(object):
         self.right = True
         self.walk_count = 0
         self.standing = True
-# #
+    #
     def draw(self, win):
         if self.walk_count+1 >= 27:
             self.walk_count = 0
@@ -52,7 +54,47 @@ class player(object):
             else:
                 win.blit(walkLeft[0], (self.x,self.y))
                 #win.blit(walkRight[0],(self.x,self.y))
+# #
+class enemy(object):
+    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
+    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'), pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'), pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'), pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
 
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        #
+        self.walk_count = 0
+        self.vel = 3
+        self.path = (self.x, self.end)
+    #
+    def draw(self, win):
+        self.move()
+        if self.walk_count + 1 >= 33:
+            self.walk_count = 0
+        #
+        if self.vel > 0: #right
+            win.blit(self.walkRight[self.walk_count//3], (self.x,self.y))
+            self.walk_count += 1
+        else:
+            win.blit(self.walkLeft[self.walk_count//3], (self.x,self.y))
+            self.walk_count += 1
+    #
+    def move(self):
+        if self.vel > 0: #moving right
+            if self.x + self.vel < self.path[1]: #move forward
+                self.x += self.vel
+            else: #change directions
+                self.vel = self.vel * -1
+                self.walk_count = 0
+        else: #moving left
+            if self.x - self.vel > self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walk_count = 0
 # #
 class projectile(object):
     def __init__(self, x, y, radius, color, facing):
@@ -72,6 +114,8 @@ class projectile(object):
 def  redrawGameWindow():
     win.blit(bg, (0,0))
     character.draw(win)
+    goblin.draw(win)
+
     #
     for bullet in bullets:
         bullet.draw(win)
@@ -81,6 +125,8 @@ def  redrawGameWindow():
 # # # # #
 #main loop
 character = player(200,410, 64, 64)
+goblin = enemy(100, 410, 64, 64, 450)
+#
 bullets = []
 #
 run = True
