@@ -39,7 +39,19 @@ def  redrawGameWindow():
     global walk_count
 
     win.blit(bg, (0,0))
-    pygame.draw.rect(win, (0, 255, 0), (x, y, width, height)) 
+
+    if walk_count+1 >= 27:
+        walk_count = 0
+
+    if left:
+        win.blit(walkLeft[walk_count//3], (x,y))
+        walk_count += 1
+    elif right:
+        win.blit(walkRight[walk_count//3], (x,y))
+        walk_count += 1
+    else:
+        win.blit(char, (x,y))
+
     pygame.display.update() 
 
 # # # # # # # 
@@ -54,14 +66,26 @@ while run:
 # # #
 #list of...
     keys = pygame.key.get_pressed()
-    
+    # #
     if keys[pygame.K_LEFT] and x > vel:
         x -= vel
-    if keys[pygame.K_RIGHT] and x < (screenwidth-width): #'-vel' ?
+        left = True 
+        Right = False
+    elif keys[pygame.K_RIGHT] and x < (screenwidth-width): #'-vel' ?
         x += vel
+        right = True
+        left = False
+    else:
+        right = False
+        left = False
+        walk_count = 0
+    # #
     if not  (isJump) :
         if keys[pygame.K_SPACE]:
             isJump = True
+            right = False
+            left = False
+            walk_count = 0
     else:
         if JumpCount >= -10:
             neg = 1
@@ -72,10 +96,10 @@ while run:
         else:
             isJump = False
             JumpCount = 10
-            
+    # #
+    redrawGameWindow()
+
 # # #
-#Call functions at end!
-redrawGameWindow()
 
 # # # # # # #
 pygame.quit()
