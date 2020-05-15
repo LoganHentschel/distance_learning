@@ -16,10 +16,14 @@ walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.ima
 bg = pygame.image.load('bg.jpg')
 char = pygame.image.load('standing.png')
 #omg theres so many whyyyy... lukcily only had to paste it this time lol. going to be soo tedious when I have to do it myself
+
+clock = pygame.time.Clock()
+
+
 # # #
 #main variables
-x = 50
-y = 50
+x = 225
+y = 400
 width = 64
 height = 64
 vel = 5 #velocity; how far the character moves in any direction
@@ -58,7 +62,7 @@ def  redrawGameWindow():
 #main loops
 run = True
 while run:
-    pygame.time.delay(100) #creathes a sort of clock; also makes things have a delay so they dont happen instantainiously; 100 miliseconds
+    clock.tick(27)
 # # # # #
     for event in pygame.event.get(): #creates/gets a list of all the events that happen
         if event.type == pygame.QUIT: #if the big red button in the corner is pushed...
