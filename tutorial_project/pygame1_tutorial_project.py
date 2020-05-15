@@ -18,6 +18,7 @@ clock = pygame.time.Clock()
 # # # # #
 # # # # #
 #This is optional; for small/simple games you don't have to make these classes, but for bigger, more complex games... its much more recomended
+#classes!
 class player(object):
     def __init__(self, x, y, width, height):
         self.x = x
@@ -30,32 +31,58 @@ class player(object):
         self.JumpCount = 10
         #
         self.left = False
-        self.right = False
+        self.right = True
         self.walk_count = 0
+        self.standing = True
 # #
     def draw(self, win):
         if self.walk_count+1 >= 27:
             self.walk_count = 0
         #
-        if self.left:
-            win.blit(walkLeft[self.walk_count//3], (self.x,self.y))
-            self.walk_count += 1
-        elif self.right:
-            win.blit(walkRight[self.walk_count//3], (self.x,self.y))
-            self.walk_count += 1
+        if not (self.standing):
+            if self.left:
+                win.blit(walkLeft[self.walk_count//3], (self.x,self.y))
+                self.walk_count += 1
+            elif self.right:
+                win.blit(walkRight[self.walk_count//3], (self.x,self.y))
+                self.walk_count += 1
         else:
-            win.blit(char, (self.x,self.y))
+            if self.right:
+                win.blit(walkRight[0], (self.x,self.y))
+            else:
+                win.blit(walkLeft[0], (self.x,self.y))
+                #win.blit(walkRight[0],(self.x,self.y))
+
+# #
+class projectile(object):
+    def __init__(self, x, y, radius, color, facing):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.facing = facing
+        self.vel = 8*facing #the velocity/speed of the bullet
+        #
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x,self.y,), self.radius)
+
 # # # # #
 # # # # #
 #functions!
 def  redrawGameWindow():
     win.blit(bg, (0,0))
     character.draw(win)
+    #
+    for bullet in bullets:
+        bullet.draw(win)
+    # #
     pygame.display.update() 
 
 # # # # #
 #main loop
-character = player(300,410, 64, 64)
+character = player(200,410, 64, 64)
+bullets = []
+#
 run = True
 #
 while run:
@@ -64,27 +91,43 @@ while run:
     for event in pygame.event.get(): 
         if event.type == pygame.QUIT: 
             run = False
+    #
+    for bullet in bullets:
+        if bullet .x < 500 and bullet.x > 0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
     # #
     keys = pygame.key.get_pressed()
     #
-    if keys[pygame.K_LEFT] and character.x > character.vel:
+    if keys[pygame.K_SPACE]:
+        if character.left:
+            facing = -1
+        else:
+            facing = 1
+        #
+        if len(bullets) < 5:
+            bullets.append(projectile(round(character.x + character.width //2), round(character.y + character.height //2), 6, (0,0,0), facing))
+    #
+    if keys[pygame.K_LEFT] and (character.x > character.vel):
         character.x -= character.vel
         character.left = True 
         character.Right = False
+        character.standing = False
     elif keys[pygame.K_RIGHT] and character.x < (screenwidth-character.width): #-character.vel / -vel
         character.x += character.vel
         character.right = True
         character.left = False
+        character.standing = False
     else:
-        character.right = False
-        character.left = False
+        #character.standing = True #having this here creates a bug??? o_o weird
         character.walk_count = 0
         # #
-    if not (character.isJump) :
-        if keys[pygame.K_SPACE]:
+    if not (character.isJump):
+        if keys[pygame.K_UP]:
             character.isJump = True
-            character.right = False
-            character.left = False
+            #character.right = False
+            #character.left = False
             character.walk_count = 0
     else:
         if character.JumpCount >= -10:
