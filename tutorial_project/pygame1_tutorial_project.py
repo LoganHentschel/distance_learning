@@ -16,6 +16,12 @@ char = pygame.image.load('standing.png')
 clock = pygame.time.Clock()
 #
 score = 0
+# #
+bulletSound = pygame.mixer.Sound('bullet.wav')
+hitSound = pygame.mixer.Sound('struck.wav')
+#
+background_music = pygame.mixer.music.load('music.mp3')
+pygame.mixer.music.play(-1)
 
 # # # # #
 # # # # #
@@ -57,6 +63,25 @@ class player(object):
                 win.blit(walkLeft[0], (self.x,self.y))
         self.hitbox = (self.x + 17, self.y+11, 29, 52)
         #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+    
+    def hit(self):
+        self.x = 60
+        self.y = 410
+        self.walk_count = 0
+        #
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('-5 points', 1, (255,0,0))
+        win.blit(text, (250 - (text.get_width()/2), 200))
+        pygame.display.update()
+        #
+        i = 0
+        while i < 100:
+            pygame.time.delay(10)
+            i += 1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    i = 301
+                    pygame.quit()
 # #
 class enemy(object):
     walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
@@ -166,6 +191,12 @@ run = True
 while run:
     clock.tick(27)
     #
+    if character.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and character.hitbox[1] + character.hitbox[3] > goblin.hitbox[1]:
+        if character.hitbox[0] + character.hitbox[2] > goblin.hitbox[0] and character.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
+            character.hit()
+            score -= 5
+
+    #
     if shootLoop > 0:
         shootLoop += 1
     if shootLoop> 3:
@@ -179,6 +210,7 @@ while run:
         #check if object (bullet) is 1. above the bottom of the rectangle & 2. below the top of the rectangle
         if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
+                hitSound.play()
                 goblin.hit()
                 score += 1
                 bullets.pop(bullets.index(bullet))
@@ -192,6 +224,7 @@ while run:
     keys = pygame.key.get_pressed()
     #
     if keys[pygame.K_SPACE] and shootLoop == 0:
+        bulletSound.play()
         if character.left:
             facing = -1
         else:
