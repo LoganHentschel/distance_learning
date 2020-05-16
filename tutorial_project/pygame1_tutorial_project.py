@@ -65,6 +65,10 @@ class player(object):
         #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
     
     def hit(self):
+        #these two lines ensure the character doesnt fall through the floor if they jump on the goblins head
+        self.isJump = False
+        self.JumpCount = 10
+        #
         self.x = 60
         self.y = 410
         self.walk_count = 0
@@ -139,7 +143,6 @@ class enemy(object):
             self.health -= 1
         else:
             self.visable = False
-        print('hit')
 
 
 # #
@@ -191,10 +194,11 @@ run = True
 while run:
     clock.tick(27)
     #
-    if character.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and character.hitbox[1] + character.hitbox[3] > goblin.hitbox[1]:
-        if character.hitbox[0] + character.hitbox[2] > goblin.hitbox[0] and character.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
-            character.hit()
-            score -= 5
+    if goblin.visable == True:
+        if character.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and character.hitbox[1] + character.hitbox[3] > goblin.hitbox[1]:
+            if character.hitbox[0] + character.hitbox[2] > goblin.hitbox[0] and character.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
+                character.hit()
+                score -= 5
 
     #
     if shootLoop > 0:
@@ -210,10 +214,11 @@ while run:
         #check if object (bullet) is 1. above the bottom of the rectangle & 2. below the top of the rectangle
         if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
-                hitSound.play()
-                goblin.hit()
-                score += 1
-                bullets.pop(bullets.index(bullet))
+                if goblin.visable == True:
+                    hitSound.play()
+                    goblin.hit()
+                    score += 1
+                    bullets.pop(bullets.index(bullet))
 
         #
         if bullet .x < 500 and bullet.x > 0:
